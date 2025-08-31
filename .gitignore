@@ -1,0 +1,30 @@
+# Python関連
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# VSCodeの設定ファイル（任意）
+.vscode/
+
+# 仮想環境
+venv/
+ENV/
+env/
+
+# 環境変数・シークレット設定
+.env
+
+# SQLiteなどローカルDB
+*.sqlite3
+db.sqlite3
+
+# Djangoマイグレーションキャッシュ
+*.log
+
+# OS関連
+.DS_Store
+Thumbs.db
