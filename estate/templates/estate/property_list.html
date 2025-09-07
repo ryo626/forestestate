@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>物件一覧| ForestEstate</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 24px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      .card {
+        border: 1px splid #ddd;
+        border-radius: 8px;
+        padding: 12px;
+        margin: 12px 0;
+      }
+      .muted {
+        color: #666;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <form method="get">
+      <label><input type="checkbox" name="nature" value="1" {% if request.GET.nature %}checked{% endif %}>自然豊か</label><br>
+      <label><input type="checkbox" name="station" value="1" {% if request.GET.station %}checked{% endif %}>駅近く</label><br>
+      <label><input type="checkbox" name="remote" value="1" {% if request.GET.remote %}checked{% endif %}>リモート</label><br>
+      <button type="submit">検索</button>
+    </form>
+      
+    <h1>物件一覧</h1>
+
+    {% if nature or station or remote %%}
+      <p>🔍 検索条件:
+        {% if nature %} 自然豊か {% if station or remote %} / {% endif %} {% endif%}
+        {% if staion  %} 駅近 {% if remote %} / {% endif %} {% endif%}
+        {%if remote %} リモート {% endif%}
+      </p>
+    {% endif %}
+    
+    {% if properties %}
+      {% for p in properties %}
+        <div class="card"></div>
+        <div>
+          <strong>{{ p.title }}</strong>
+        </div>
+        <div class="muted">住所:{{ p.address }}</div>
+        <div>価格:{{ p.price }}円</div>
+        <a href="{% url 'property_detail' p.id %}">詳細を見る</a>
+        {% if p.description %}
+          <p>{{ p.description }}</p>
+        {% endif %}
+        <div class="muted">登録日:{{ p.created_at|date:'Y-m-d H:i' }}</div>
+      {% endfor %}
+    {% else %}
+      <p>物件がまだありません。管理画面から追加してください。</p>
+    {% endif %}
+  </body>
+</html>
