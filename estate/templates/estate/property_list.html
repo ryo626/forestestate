@@ -10,7 +10,7 @@
         margin: 24px;
       }
       h1 {
-        font-size: 20px;
+        font-size: 40px;
       }
       .card {
         border: 1px splid #ddd;
@@ -25,39 +25,45 @@
     </style>
   </head>
   <body>
+
+
+      
+    <h1>物件一覧サイト</h1>
+
+    <h2>検索機能</h2>
     <form method="get">
       <label><input type="checkbox" name="nature" value="1" {% if request.GET.nature %}checked{% endif %}>自然豊か</label><br>
       <label><input type="checkbox" name="station" value="1" {% if request.GET.station %}checked{% endif %}>駅近く</label><br>
       <label><input type="checkbox" name="remote" value="1" {% if request.GET.remote %}checked{% endif %}>リモート</label><br>
       <button type="submit">検索</button>
     </form>
-      
-    <h1>物件一覧</h1>
 
-    {% if nature or station or remote %%}
-      <p>🔍 検索条件:
-        {% if nature %} 自然豊か {% if station or remote %} / {% endif %} {% endif%}
-        {% if staion  %} 駅近 {% if remote %} / {% endif %} {% endif%}
-        {%if remote %} リモート {% endif%}
-      </p>
+    <a href="{% url 'property_create' %}">物件登録</a>
+
+    {% if search_conditions %}
+      <p>🔍 検索条件: {{ search_conditions|join:" / " }} </p>
     {% endif %}
-    
+
     {% if properties %}
       {% for p in properties %}
         <div class="card"></div>
         <div>
           <strong>{{ p.title }}</strong>
         </div>
-        <div class="muted">住所:{{ p.address }}</div>
         <div>価格:{{ p.price }}円</div>
-        <a href="{% url 'property_detail' p.id %}">詳細を見る</a>
-        {% if p.description %}
-          <p>{{ p.description }}</p>
-        {% endif %}
+        <a href="{% url 'property_detail' p.id %}">詳細</a>
+        <a href = "{% url 'property_update' p.id %}">編集</a>
         <div class="muted">登録日:{{ p.created_at|date:'Y-m-d H:i' }}</div>
       {% endfor %}
     {% else %}
       <p>物件がまだありません。管理画面から追加してください。</p>
     {% endif %}
+
+    {% if search_conditions %}
+    <form action="{% url 'property_list' %}" method="get" style="display: inline; " >
+      <button type="submit">🔙 一覧表示に戻る</button>
+    </form>
+    {% endif %}
+
   </body>
 </html>

@@ -1,0 +1,13 @@
+<h2>新しい物件を登録</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+{% if form.instance.pk %}
+    <button type="submit">編集する</button>
+{% else %}
+    <button type="submit">登録する</button>
+{% endif %}
+</form>
+
+<a href="{% url 'property_list' %}">一覧に戻る</a>
