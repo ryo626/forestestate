@@ -32,9 +32,13 @@
 
     <h2>検索機能</h2>
     <form method="get">
-      <label><input type="checkbox" name="nature" value="1" {% if request.GET.nature %}checked{% endif %}>自然豊か</label><br>
-      <label><input type="checkbox" name="station" value="1" {% if request.GET.station %}checked{% endif %}>駅近く</label><br>
-      <label><input type="checkbox" name="remote" value="1" {% if request.GET.remote %}checked{% endif %}>リモート</label><br>
+      <!--フリーワード検索-->
+      <input type = "text" name = "q" placeholder = "キーワード検索" value = "{{ request.GET.q }}" ><br>
+
+      <!--チェックボックス-->
+      <label><input type = "checkbox" name="nature" value="1" {% if request.GET.nature %}checked{% endif %}>自然豊か</label><br>
+      <label><input type = "checkbox" name="station" value="1" {% if request.GET.station %}checked{% endif %}>駅近く</label><br>
+      <label><input type = "checkbox" name="remote" value="1" {% if request.GET.remote %}checked{% endif %}>リモート</label><br>
       <button type="submit">検索</button>
     </form>
 
@@ -53,17 +57,19 @@
         <div>価格:{{ p.price }}円</div>
         <a href="{% url 'property_detail' p.id %}">詳細</a>
         <a href = "{% url 'property_update' p.id %}">編集</a>
+        <a href = "{% url 'property_delete' p.id %}">削除</a>
         <div class="muted">登録日:{{ p.created_at|date:'Y-m-d H:i' }}</div>
+        <form action="{% url 'property_list' %}" method="get" style="display: inline; " >
+         <button type="submit">🔙 一覧表示に戻る</button>
+        </form>
       {% endfor %}
     {% else %}
       <p>物件がまだありません。管理画面から追加してください。</p>
-    {% endif %}
-
-    {% if search_conditions %}
     <form action="{% url 'property_list' %}" method="get" style="display: inline; " >
       <button type="submit">🔙 一覧表示に戻る</button>
     </form>
     {% endif %}
+
 
   </body>
 </html>

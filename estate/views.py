@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Q
 from .models import Property
 from .forms import PropertyForm
 
@@ -17,6 +18,7 @@ def property_list(request):
     search_conditions = []
     # DBからPropertyデータを全件取得、登録日時が最近のものから(降順)にする
     properties = Property.objects.all().order_by("-created_at")
+    applied = False
 
     # checkboxesのkeyとvalueを順番に取り出す
     for key, (query_text, label) in checkboxes.items():
@@ -26,6 +28,16 @@ def property_list(request):
             properties = properties.filter(description__icontains=query_text)
             # list型のsearch_conditionsにlabelを格納
             search_conditions.append(label)
+            applied = True
+
+    q = request.GET.get("q")
+    if q:
+        properties = properties.filter(Q(title__icontains=q))
+        applied = True
+
+    # GET送信がなしandキーワードとチェックボックスの条件が一つもなければ強制的にpropertiesが空になる
+    if request.GET and not applied:
+        properties = Property.objects.none()
 
     # DBからPropertyを取得したデータをcontextに格納
     context = {
@@ -63,6 +75,7 @@ def property_create(request):
     return render(request, "estate/property_form.html", {"form": form})
 
 
+# ユーザー更新機能
 def property_update(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     if request.method == "POST":
@@ -75,3 +88,12 @@ def property_update(request, pk):
         form = PropertyForm(instance=property_obj)
 
     return render(request, "estate/property_form.html", {"form": form})
+
+
+# ユーザー削除機能
+def property_delete(request, pk):
+    property_obj = get_object_or_404(Property, pk=pk)
+    if request.method == "POST":
+        property_obj.delete()
+        return redirect("property_list")
+    return render(request, "estate/property_delete.html", {"property": property_obj})
