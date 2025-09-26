@@ -2,11 +2,17 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q
 from .models import Property
 from .forms import PropertyForm
+from django.core.paginator import Paginator
+
 
 # 物件一覧機能
 
 
 def property_list(request):
+
+    # DBからPropertyデータを全件取得、登録日時が最近のものから(降順)にする
+    properties = Property.objects.all().order_by("-created_at")
+
     # クエリ用のキーワードと、画面表示用のラベルをセットで定義
     checkboxes = {
         "nature": ("自然", "自然豊か"),
@@ -16,8 +22,7 @@ def property_list(request):
 
     # テンプレートに渡す状態をlist型にする
     search_conditions = []
-    # DBからPropertyデータを全件取得、登録日時が最近のものから(降順)にする
-    properties = Property.objects.all().order_by("-created_at")
+
     applied = False
 
     # checkboxesのkeyとvalueを順番に取り出す
@@ -30,18 +35,41 @@ def property_list(request):
             search_conditions.append(label)
             applied = True
 
+    # 　フリーワード検索
     q = request.GET.get("q")
     if q:
         properties = properties.filter(Q(title__icontains=q))
         applied = True
 
-    # GET送信がなしandキーワードとチェックボックスの条件が一つもなければ強制的にpropertiesが空になる
-    if request.GET and not applied:
+    # 価格の範囲検索
+    price_min = request.GET.get("price_min")
+    price_max = request.GET.get("price_max")
+
+    if price_min:
+        properties = properties.filter(price__gte=price_min)
+        applied = True
+
+    if price_max:
+        properties = properties.filter(price__lte=price_max)
+        applied = True
+
+    # GET送信データがあるかつキーワードとチェックボックスの条件が一つもなければ強制的にpropertiesが空になる
+    if request.GET and not applied and "page" not in request.GET:
         properties = Property.objects.none()
+
+    # ページネーション機能
+    # 1ページ2件に区切る
+    paginator = Paginator(properties, 2)
+
+    # 現在のページ番号をGETパラメータから取得(例　?page=2)
+    page_number = request.GET.get("page")
+
+    # ページオブジェクトを取得(不正な番号でも安全に処理される)
+    page_obj = paginator.get_page(page_number)
 
     # DBからPropertyを取得したデータをcontextに格納
     context = {
-        "properties": properties,
+        "page_obj": page_obj,
         "search_conditions": search_conditions,
     }
 

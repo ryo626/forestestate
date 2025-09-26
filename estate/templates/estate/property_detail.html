@@ -1,9 +1,12 @@
-<!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <title>詳細 | ForestEstate</title>
-  </head>
+{% extends "base/property_base.html" %}
+
+{% block head %}
+    {% load static %}
+        <link rel = "stylesheet" href = "{% static 'css/style_detail.css' %}" >
+{% endblock %}
+
+{% block title %}% 詳細 | ForestEstate{% endblock %}
+ {% block content %}
   <body>
     <h1>{{ property.title }}</h1>
 
@@ -13,6 +16,5 @@
     <p>説明: {{ property.description }}</p>
     <p>登録日: {{ property.created_at|date:'Y年m月d日 H:i' }}</p>
 
-    <a href="{% url 'property_list' %}">← 一覧に戻る</a>
-  </body>
-</html>
+    <a href="{% url 'property_list' %}" class = "btn btn-primary list">← 一覧に戻る</a>
+{% endblock %}

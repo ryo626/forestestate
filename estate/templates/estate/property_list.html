@@ -1,75 +1,93 @@
-<!DOCTYPE html>
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <title>物件一覧| ForestEstate</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      body {
-        font-family: system-ui, sans-serif;
-        margin: 24px;
-      }
-      h1 {
-        font-size: 40px;
-      }
-      .card {
-        border: 1px splid #ddd;
-        border-radius: 8px;
-        padding: 12px;
-        margin: 12px 0;
-      }
-      .muted {
-        color: #666;
-        font-size: 12px;
-      }
-    </style>
-  </head>
-  <body>
+{% extends "base/property_base.html" %}
 
+{% block head %}
+{% load static %}
+<link rel = "stylesheet" href = "{% static 'css/style_list.css' %}" >
+{% endblock %}
+{% block title %}物件一覧ページ{%  endblock %}
 
-      
-    <h1>物件一覧サイト</h1>
-
-    <h2>検索機能</h2>
+{% block content %}
+<h1>物件一覧ページ</h1>
+  <h2>検索機能</h2>
     <form method="get">
       <!--フリーワード検索-->
-      <input type = "text" name = "q" placeholder = "キーワード検索" value = "{{ request.GET.q }}" ><br>
-
+      <input type = "text" name = "q" placeholder = "キーワード検索" value = "{{ request.GET.q }}" class = "form-control" placeholder = "キーワードを入力" ><br>
+      <!--最低価格-->
+      <label>最低価格:<br>
+        <input type = "number" name = "price_min" value = "{{ request.GET.price_min }}" >
+      </label><br>
+      <!--最低価格-->
+      <label>最高価格:<br>
+        <input type = "number" name = "price_max" value = "{{ request.GET.price_max }}" >
+      </label>      
+      <br>
       <!--チェックボックス-->
-      <label><input type = "checkbox" name="nature" value="1" {% if request.GET.nature %}checked{% endif %}>自然豊か</label><br>
-      <label><input type = "checkbox" name="station" value="1" {% if request.GET.station %}checked{% endif %}>駅近く</label><br>
-      <label><input type = "checkbox" name="remote" value="1" {% if request.GET.remote %}checked{% endif %}>リモート</label><br>
-      <button type="submit">検索</button>
+      <div class = "form-check">
+        <label><input type = "checkbox" name="nature" value="1" {% if request.GET.nature %}checked{% endif %}>自然豊か</label><br>
+      </div>
+      <div class = "form-check">
+        <label><input type = "checkbox" name="station" value="1" {% if request.GET.station %}checked{% endif %}>駅近く</label><br>
+      </div>  
+      <div class = "form-check">
+        <label><input type = "checkbox" name="remote" value="1" {% if request.GET.remote %}checked{% endif %}>リモート</label><br>
+      </div>
+      <button type="submit" class = "btn btn-primary search_button mt-2 ">検索</button>
     </form>
 
-    <a href="{% url 'property_create' %}">物件登録</a>
+    <a href="{% url 'property_create' %}" class = "btn btn-success ">物件登録</a>
 
     {% if search_conditions %}
       <p>🔍 検索条件: {{ search_conditions|join:" / " }} </p>
     {% endif %}
 
-    {% if properties %}
-      {% for p in properties %}
+    {% if page_obj %}
+      {% for p in page_obj %}
         <div class="card"></div>
         <div>
           <strong>{{ p.title }}</strong>
         </div>
         <div>価格:{{ p.price }}円</div>
-        <a href="{% url 'property_detail' p.id %}">詳細</a>
-        <a href = "{% url 'property_update' p.id %}">編集</a>
-        <a href = "{% url 'property_delete' p.id %}">削除</a>
+        <div>
+        <a href="{% url 'property_detail' p.id %}" class = "btn btn-info">詳細</a>
+        <a href = "{% url 'property_update' p.id %}" class = "btn btn-warning" >編集</a>
+        <a href = "{% url 'property_delete' p.id %}" class = "btn btn-danger">削除</a>
+        </div>
         <div class="muted">登録日:{{ p.created_at|date:'Y-m-d H:i' }}</div>
-        <form action="{% url 'property_list' %}" method="get" style="display: inline; " >
-         <button type="submit">🔙 一覧表示に戻る</button>
-        </form>
+        <div class="muted">更新日:{{ p.updated_at|date:'Y-m-d H:i' }}</div>
       {% endfor %}
     {% else %}
-      <p>物件がまだありません。管理画面から追加してください。</p>
-    <form action="{% url 'property_list' %}" method="get" style="display: inline; " >
-      <button type="submit">🔙 一覧表示に戻る</button>
-    </form>
+      {% if request.GET %}
+        <div class = "property_none" >
+          <p> 条件に一致する物件がありません。 </p>
+        </div>
+      {% else %}
+        <div class = "property_none" >
+          <p> 現在、物件は登録されてません。</p>
+        </div>
+      {% endif %}
+      <div class ="list">
+        <form action="{% url 'property_list' %}" method="get" style="display: inline; " >
+          <button type="submit" class = "btn btn-primary list">🔙 一覧表示に戻る</button>
+        </form>
+      </div>
     {% endif %}
 
+    <!--ページネーション-->
+      <div class="pagination">
+        <span class ="step-links">
+          {% if page_obj.has_previous %}
+            <a href = "?page=1">&laquo; 最初</a>
+            <a href = "?page={{ page_obj.previous_page_number }}">前へ</a>
+          {% endif %}
 
-  </body>
-</html>
+          <span class = "current">
+            ページ {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </span>
+
+          {% if page_obj.has_next %}
+            <a href = "?page={{ page_obj.next_page_number }}">次へ</a>
+            <a href = "?page={{ page_obj.paginator.num_pages }}">最後 &raquo;</a>
+          {% endif %}
+        </span>
+      </div>
+{% endblock %}

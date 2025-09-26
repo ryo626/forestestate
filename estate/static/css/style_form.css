@@ -1,0 +1,13 @@
+ul.errorlist {
+  color: red;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-weight: bold;
+}
+
+.list {
+  --bs-btn-padding-y: 0.25rem;
+  --bs-btn-padding-x: 0.75rem;
+  --bs-btn-font-size: 1rem;
+}

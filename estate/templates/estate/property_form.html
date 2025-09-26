@@ -1,13 +1,27 @@
+{% extends "base/property_base.html" %}
+{% block head %}
+    {% load static %}
+        <link rel = "stylesheet" href = "{% static 'css/style_form.css' %}" >
+{% endblock %}
+{% block title %}新規物件登録ページ{% endblock %}
+{% block content %}
 <h2>新しい物件を登録</h2>
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
+
+    {% if forms.errors %}
+        {{ forms.errors }}
+    {% endif %}
+
 {% if form.instance.pk %}
-    <button type="submit">編集する</button>
+    <button type="submit" class = "btn btn-primary">編集する</button>
 {% else %}
-    <button type="submit">登録する</button>
+    <button type="submit" class = "btn btn-primary">登録する</button>
 {% endif %}
+
 </form>
 
-<a href="{% url 'property_list' %}">一覧に戻る</a>
+<a href="{% url 'property_list' %}" class = "btn btn-primary list">一覧に戻る</a>
+{% endblock %}

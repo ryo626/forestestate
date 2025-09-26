@@ -1,3 +1,10 @@
+{% extends "base/property_base.html" %}
+{% block title %}物件削除ページ{% endblock %}
+{% block head %}
+    {% load static %}
+        <link rel = "stylesheet" href = "{% static 'css/style_delete.css' %}" >
+{% endblock %}
+{% block content %}
 {% if property %}
     <h1>この物件を削除しますか?</h1>
 
@@ -9,9 +16,10 @@
 
 <form action="{% url 'property_delete' property.id %}" method = "POST" >
     {%  csrf_token  %}
-        <button type="submit">削除する</button>
+        <button type="submit" class = "btn btn-danger">削除する</button>
 </form>
 
 {% endif %}
 
-<a href="{% url 'property_list' %}">一覧に戻る</a>
+<a href="{% url 'property_list' %}" class = "btn btn-primary list">一覧に戻る</a>
+{% endblock %}
