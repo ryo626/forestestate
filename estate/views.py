@@ -3,11 +3,26 @@ from django.db.models import Q
 from .models import Property
 from .forms import PropertyForm
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.contrib.auth.forms import UserCreationForm
+
+# 物件一覧アプリ
 
 
-# 物件一覧機能
+# ユーザー登録機能
+def signup(request):
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()  # ユーザー作成
+            return redirect("login")  # 登録したらログインページに飛ばす
+    else:
+        form = UserCreationForm()
+    return render(request, "registration/signup.html", {"form": form})
 
 
+# 物件一覧表示
 def property_list(request):
 
     # DBからPropertyデータを全件取得、登録日時が最近のものから(降順)にする
@@ -59,7 +74,7 @@ def property_list(request):
 
     # ページネーション機能
     # 1ページ2件に区切る
-    paginator = Paginator(properties, 2)
+    paginator = Paginator(properties, 10)
 
     # 現在のページ番号をGETパラメータから取得(例　?page=2)
     page_number = request.GET.get("page")
@@ -91,11 +106,14 @@ def property_detail(request, pk):  # 引数pkは"propertyes/<int:pk>/"のpkに�
 
 
 # ユーザー物件登録機能
+@login_required
 def property_create(request):
     if request.method == "POST":
-        form = PropertyForm(request.POST)
+        form = PropertyForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            property = form.save(commit=False)
+            property.owner = request.user
+            property.save()
             return redirect("property_list")
     else:
         form = PropertyForm()
@@ -104,10 +122,12 @@ def property_create(request):
 
 
 # ユーザー更新機能
+@login_required
 def property_update(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
+
     if request.method == "POST":
-        form = PropertyForm(request.POST, instance=property_obj)
+        form = PropertyForm(request.POST, request.FILES, instance=property_obj)
         if form.is_valid():
             form.save()
             return redirect("property_list")
@@ -115,10 +135,11 @@ def property_update(request, pk):
     else:
         form = PropertyForm(instance=property_obj)
 
-    return render(request, "estate/property_form.html", {"form": form})
+    return render(request, "estate/property_form.html", {"form": form,"property": property_obj})
 
 
 # ユーザー削除機能
+@login_required
 def property_delete(request, pk):
     property_obj = get_object_or_404(Property, pk=pk)
     if request.method == "POST":

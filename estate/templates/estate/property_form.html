@@ -1,4 +1,4 @@
-{% extends "base/property_base.html" %}
+{% extends "estate/base.html" %}
 {% block head %}
     {% load static %}
         <link rel = "stylesheet" href = "{% static 'css/style_form.css' %}" >
@@ -7,9 +7,16 @@
 {% block content %}
 <h2>新しい物件を登録</h2>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
+    {% if property.image %}
+        <p>現在の画像</p>
+        <img src="{{ property.image.url }}" alt="物件画像" width="200">
+        <div>
+            {{ form.delete_image }} 画像を削除
+        </div>
+    {% endif %}
 
     {% if forms.errors %}
         {{ forms.errors }}

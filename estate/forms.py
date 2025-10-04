@@ -6,7 +6,18 @@ class PropertyForm(forms.ModelForm):
 
     class Meta:
         model = Property
-        fields = ["title", "description", "address", "price"]
+        fields = ["title", "description", "address", "price", 'image']
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        #チェックが入ってれば画像削除
+        if self.cleaned_data.get('delete_image'):
+            if instance.image:
+                instance.image.delete(save=False)
+                instance.image = None
+        if commit:
+            instance.save()
+        return instance
 
     # 　フィールドごとのバリデーション
     def clean_price(self):

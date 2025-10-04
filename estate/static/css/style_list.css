@@ -7,3 +7,7 @@
 .search_button {
   --bs-btn-padding-x: 5rem;
 }
+
+.card {
+  width: 18rem;
+}

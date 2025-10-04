@@ -3,3 +3,7 @@
   --bs-btn-padding-x: 0.75rem;
   --bs-btn-font-size: 1rem;
 }
+
+img {
+  max-width: 400px;
+}
